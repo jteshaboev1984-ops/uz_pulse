@@ -2,46 +2,130 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PULSE App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PULSE Collector</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #1a1a1a);
+            --text-color: var(--tg-theme-text-color, #ffffff);
+            --btn-color: var(--tg-theme-button-color, #3390ec);
+            --btn-text: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #2c2c2c);
         }
-        .btn {
-            background-color: var(--tg-theme-button-color, #3390ec);
-            color: var(--tg-theme-button-text-color, #fff);
-            padding: 15px 30px;
-            border-radius: 10px;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            margin-top: 20px;
+        body { font-family: -apple-system, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
+        h2 { margin-top: 0; }
+        .card { background: var(--secondary-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #aaa; }
+        select, input { 
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; 
+            background: var(--bg-color); color: var(--text-color); font-size: 16px; box-sizing: border-box;
         }
-        h1 { margin-bottom: 10px; }
+        .btn { 
+            width: 100%; padding: 15px; background: var(--btn-color); color: var(--btn-text); 
+            border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+        .btn:disabled { opacity: 0.6; }
+        .hidden { display: none; }
+        #status { text-align: center; margin-top: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h1>Привет, Волонтер! 👋</h1>
-    <p>Это начало твоего Mini App.</p>
-    <button class="btn" onclick="sendData()">Тест отправки</button>
+
+    <div id="form-screen">
+        <h2>📊 Сбор данных</h2>
+        
+        <div class="card">
+            <label>Что оцениваем?</label>
+            <select id="product">
+                <option value="strawberry_egg">🍓 Клубника / Яйцо</option>
+                <option value="plov_laziness">🍛 Плов (Лень)</option>
+                <option value="milk_eco">🥛 Молоко (Эко)</option>
+                <option value="tutor">🎓 Репетитор</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <label>Где?</label>
+            <select id="location">
+                <option value="korzinka">🛒 Корзинка / Супермаркет</option>
+                <option value="bazaar">🎪 Базар</option>
+                <option value="delivery">🚚 Доставка</option>
+                <option value="center">🏫 Учебный центр</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <label>Цена (сум)</label>
+            <input type="number" id="price" placeholder="Например: 15000">
+        </div>
+
+        <button class="btn" onclick="submitData()" id="sendBtn">Отправить данные</button>
+        <p id="status"></p>
+    </div>
+
+    <div id="success-screen" class="hidden" style="text-align: center; padding-top: 50px;">
+        <h1 style="font-size: 60px;">✅</h1>
+        <h3>Данные приняты!</h3>
+        <p>Спасибо за вклад в экономику.</p>
+        <button class="btn" onclick="resetForm()">Добавить еще</button>
+    </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрыть на весь экран
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
-        function sendData() {
-            // Просто отправляем данные обратно боту для теста
-            tg.sendData("Я нажал кнопку в приложении!");
+        // СЮДА ВСТАВЬ СВОИ КЛЮЧИ ИЗ .env ФАЙЛА!
+        const SUPABASE_URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function submitData() {
+            const btn = document.getElementById('sendBtn');
+            const status = document.getElementById('status');
+            const product = document.getElementById('product').value;
+            const location = document.getElementById('location').value;
+            const price = document.getElementById('price').value;
+
+            if (!price) {
+                tg.showAlert("Пожалуйста, введите цену!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Отправка...";
+
+            // Отправляем в Supabase
+            const { error } = await supabase
+                .from('submissions')
+                .insert({
+                    user_id: tg.initDataUnsafe?.user?.id || 12345, // ID юзера из ТГ
+                    index_slug: product,
+                    location_type: location,
+                    price: Number(price)
+                });
+
+            if (error) {
+                status.innerText = "Ошибка: " + error.message;
+                status.style.color = "red";
+                btn.disabled = false;
+                btn.innerText = "Попробовать снова";
+            } else {
+                // Успех!
+                document.getElementById('form-screen').classList.add('hidden');
+                document.getElementById('success-screen').classList.remove('hidden');
+                tg.HapticFeedback.notificationOccurred('success'); // Вибрация телефона
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('price').value = '';
+            document.getElementById('success-screen').classList.add('hidden');
+            document.getElementById('form-screen').classList.remove('hidden');
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('sendBtn').innerText = "Отправить данные";
         }
     </script>
 </body>
