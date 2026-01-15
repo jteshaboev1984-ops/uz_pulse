@@ -76,11 +76,12 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // СЮДА ВСТАВЬ СВОИ КЛЮЧИ ИЗ .env ФАЙЛА!
-        const SUPABASE_URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
+        // --- ВСТАВЬ СЮДА СВОИ КЛЮЧИ! ---
+        const MY_SUPABASE_URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
+        const MY_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // ИСПРАВЛЕНИЕ: Называем переменную 'db', а не 'supabase', чтобы не было конфликта
+        const db = window.supabase.createClient(MY_SUPABASE_URL, MY_SUPABASE_KEY);
 
         async function submitData() {
             const btn = document.getElementById('sendBtn');
@@ -98,17 +99,18 @@
             btn.innerText = "Отправка...";
 
             // Отправляем в Supabase
-            const { error } = await supabase
+            const { error } = await db
                 .from('submissions')
                 .insert({
-                    user_id: tg.initDataUnsafe?.user?.id || 12345, // ID юзера из ТГ
+                    user_id: tg.initDataUnsafe?.user?.id || 12345,
                     index_slug: product,
                     location_type: location,
                     price: Number(price)
                 });
 
             if (error) {
-                status.innerText = "Ошибка: " + error.message;
+                console.error(error); // Показать ошибку в консоли для отладки
+                status.innerText = "Ошибка базы: " + error.message;
                 status.style.color = "red";
                 btn.disabled = false;
                 btn.innerText = "Попробовать снова";
@@ -116,7 +118,9 @@
                 // Успех!
                 document.getElementById('form-screen').classList.add('hidden');
                 document.getElementById('success-screen').classList.remove('hidden');
-                tg.HapticFeedback.notificationOccurred('success'); // Вибрация телефона
+                
+                // Пытаемся вызвать вибрацию, если доступна
+                try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
             }
         }
 
