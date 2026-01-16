@@ -3,73 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PULSE Collector</title>
+    <title>PULSE App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: var(--tg-theme-bg-color, #1a1a1a);
             --text-color: var(--tg-theme-text-color, #ffffff);
-            --btn-color: var(--tg-theme-button-color, #3390ec);
-            --btn-text: var(--tg-theme-button-text-color, #ffffff);
-            --secondary-bg: var(--tg-theme-secondary-bg-color, #2c2c2c);
+            --card-bg: var(--tg-theme-secondary-bg-color, #2c2c2c);
+            --accent: var(--tg-theme-button-color, #3390ec);
         }
-        body { font-family: -apple-system, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; }
-        h2 { margin-top: 0; }
-        .card { background: var(--secondary-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        label { display: block; margin-bottom: 8px; font-weight: 500; color: #aaa; }
-        select, input { 
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; 
-            background: var(--bg-color); color: var(--text-color); font-size: 16px; box-sizing: border-box;
-        }
-        .btn { 
-            width: 100%; padding: 15px; background: var(--btn-color); color: var(--btn-text); 
-            border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
-        }
-        .btn:disabled { opacity: 0.6; }
-        .hidden { display: none; }
-        #status { text-align: center; margin-top: 10px; font-size: 14px; }
+        body { font-family: sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; padding-bottom: 80px; }
+        
+        /* Навигация */
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); display: flex; padding: 10px; border-top: 1px solid #333; }
+        .nav-btn { flex: 1; background: none; border: none; color: #888; font-size: 12px; font-weight: bold; padding: 10px; cursor: pointer; }
+        .nav-btn.active { color: var(--accent); }
+        .nav-icon { display: block; font-size: 20px; margin-bottom: 4px; }
+
+        /* Экраны */
+        .screen { display: none; padding: 20px; }
+        .screen.active { display: block; }
+
+        /* Карточки */
+        .card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        h2 { margin-top: 0; font-size: 22px; }
+        
+        /* Форма */
+        label { display: block; margin-bottom: 8px; color: #aaa; }
+        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: var(--bg-color); color: var(--text-color); box-sizing: border-box; margin-bottom: 15px; font-size: 16px;}
+        .main-btn { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="form-screen">
-        <h2>📊 Сбор данных</h2>
-        
+    <div id="screen-form" class="screen active">
+        <h2>📝 Ввод данных</h2>
         <div class="card">
-            <label>Что оцениваем?</label>
+            <label>Товар</label>
             <select id="product">
                 <option value="strawberry_egg">🍓 Клубника / Яйцо</option>
                 <option value="plov_laziness">🍛 Плов (Лень)</option>
                 <option value="milk_eco">🥛 Молоко (Эко)</option>
                 <option value="tutor">🎓 Репетитор</option>
             </select>
-        </div>
-
-        <div class="card">
-            <label>Где?</label>
+            
+            <label>Место</label>
             <select id="location">
-                <option value="korzinka">🛒 Корзинка / Супермаркет</option>
+                <option value="korzinka">🛒 Корзинка</option>
                 <option value="bazaar">🎪 Базар</option>
                 <option value="delivery">🚚 Доставка</option>
-                <option value="center">🏫 Учебный центр</option>
             </select>
-        </div>
 
-        <div class="card">
             <label>Цена (сум)</label>
-            <input type="number" id="price" placeholder="Например: 15000">
+            <input type="number" id="price" placeholder="15000">
+            
+            <button class="main-btn" onclick="submitData()" id="sendBtn">Отправить</button>
+            <p id="status" style="text-align: center; margin-top: 10px;"></p>
         </div>
-
-        <button class="btn" onclick="submitData()" id="sendBtn">Отправить данные</button>
-        <p id="status"></p>
     </div>
 
-    <div id="success-screen" class="hidden" style="text-align: center; padding-top: 50px;">
-        <h1 style="font-size: 60px;">✅</h1>
-        <h3>Данные приняты!</h3>
-        <p>Спасибо за вклад в экономику.</p>
-        <button class="btn" onclick="resetForm()">Добавить еще</button>
+    <div id="screen-stats" class="screen">
+        <h2>📊 Пульс Экономики</h2>
+        <div class="card">
+            <canvas id="myChart"></canvas>
+        </div>
+        <div class="card">
+            <h3>Последние записи:</h3>
+            <div id="history-list" style="font-size: 14px; color: #ccc;">Загрузка...</div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <button class="nav-btn active" onclick="switchTab('form')" id="btn-form">
+            <span class="nav-icon">📝</span> Ввод
+        </button>
+        <button class="nav-btn" onclick="switchTab('stats')" id="btn-stats">
+            <span class="nav-icon">📊</span> Статистика
+        </button>
     </div>
 
     <script>
@@ -77,59 +89,100 @@
         tg.expand();
 
         // --- ВСТАВЬ СЮДА СВОИ КЛЮЧИ! ---
-        const MY_SUPABASE_URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
-        const MY_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
+        const MY_URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
+        const MY_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
         
-        // ИСПРАВЛЕНИЕ: Называем переменную 'db', а не 'supabase', чтобы не было конфликта
-        const db = window.supabase.createClient(MY_SUPABASE_URL, MY_SUPABASE_KEY);
+        const db = window.supabase.createClient(MY_URL, MY_KEY);
 
+        // Переключение вкладок
+        function switchTab(tab) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('screen-' + tab).classList.add('active');
+            document.getElementById('btn-' + tab).classList.add('active');
+
+            if (tab === 'stats') loadStats(); // Загружаем графики при открытии
+        }
+
+        // Отправка данных (как было)
         async function submitData() {
             const btn = document.getElementById('sendBtn');
             const status = document.getElementById('status');
-            const product = document.getElementById('product').value;
-            const location = document.getElementById('location').value;
             const price = document.getElementById('price').value;
-
-            if (!price) {
-                tg.showAlert("Пожалуйста, введите цену!");
-                return;
-            }
+            
+            if (!price) return tg.showAlert("Введите цену!");
 
             btn.disabled = true;
-            btn.innerText = "Отправка...";
+            btn.innerText = "⏳";
 
-            // Отправляем в Supabase
-            const { error } = await db
-                .from('submissions')
-                .insert({
-                    user_id: tg.initDataUnsafe?.user?.id || 12345,
-                    index_slug: product,
-                    location_type: location,
-                    price: Number(price)
-                });
+            const { error } = await db.from('submissions').insert({
+                user_id: 12345, // Тестовый юзер
+                index_slug: document.getElementById('product').value,
+                location_type: document.getElementById('location').value,
+                price: Number(price)
+            });
+
+            btn.disabled = false;
+            btn.innerText = "Отправить";
 
             if (error) {
-                console.error(error); // Показать ошибку в консоли для отладки
-                status.innerText = "Ошибка базы: " + error.message;
-                status.style.color = "red";
-                btn.disabled = false;
-                btn.innerText = "Попробовать снова";
+                status.innerText = "Ошибка: " + error.message;
             } else {
-                // Успех!
-                document.getElementById('form-screen').classList.add('hidden');
-                document.getElementById('success-screen').classList.remove('hidden');
-                
-                // Пытаемся вызвать вибрацию, если доступна
-                try { tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
+                tg.showAlert("✅ Данные приняты!");
+                document.getElementById('price').value = '';
             }
         }
 
-        function resetForm() {
-            document.getElementById('price').value = '';
-            document.getElementById('success-screen').classList.add('hidden');
-            document.getElementById('form-screen').classList.remove('hidden');
-            document.getElementById('sendBtn').disabled = false;
-            document.getElementById('sendBtn').innerText = "Отправить данные";
+        // ЗАГРУЗКА СТАТИСТИКИ
+        async function loadStats() {
+            // 1. Скачиваем все данные
+            const { data, error } = await db.from('submissions').select('*');
+            
+            if (error) return console.error(error);
+
+            // 2. Считаем среднюю цену для графика
+            const products = {};
+            data.forEach(row => {
+                if (!products[row.index_slug]) products[row.index_slug] = [];
+                products[row.index_slug].push(row.price);
+            });
+
+            const labels = Object.keys(products); // Названия товаров
+            const averages = labels.map(slug => {
+                const prices = products[slug];
+                const sum = prices.reduce((a, b) => a + b, 0);
+                return sum / prices.length;
+            });
+
+            // 3. Рисуем График
+            const ctx = document.getElementById('myChart');
+            
+            // Если график уже был, удаляем его перед перерисовкой
+            if (window.myLineChart) window.myLineChart.destroy();
+
+            window.myLineChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Средняя цена (сум)',
+                        data: averages,
+                        backgroundColor: ['#3390ec', '#e05d44', '#f1c40f', '#2ecc71'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    scales: { y: { beginAtZero: true, grid: { color: '#444' } }, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 4. Список последних записей
+            const list = document.getElementById('history-list');
+            list.innerHTML = data.slice(-5).reverse().map(row => 
+                `<div>🕒 ${row.index_slug}: <b>${row.price} сум</b></div><hr style="border-color:#444">`
+            ).join('');
         }
     </script>
 </body>
