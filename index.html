@@ -124,11 +124,11 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ⚠️ ИСПРАВЛЕНИЕ: Добавлен .trim(), чтобы убрать невидимые пробелы
+        // ⚠️ ЗАЩИТА ОТ ОШИБОК: .trim() удаляет пробелы-шпионы
         const URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co'.trim();
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI'.trim();
         
-        // Создаем клиент БД. Если URL был плохой, теперь он почищен.
+        // Теперь создаем клиент с ЧИСТОЙ ссылкой
         const db = window.supabase.createClient(URL, KEY);
         
         let user = tg.initDataUnsafe?.user || { id: 11111, first_name: 'TestUser' };
