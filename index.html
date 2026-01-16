@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PULSE App</title>
+    <title>PULSE</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,54 +12,65 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        /* --- ДИЗАЙН (CSS) --- */
         :root {
-            --bg-color: #1a1a1a; /* Темный фон как в docx */
-            --card-bg: #2c2c2c;
-            --accent: #3390ec;
-            --text-main: #ffffff;
-            --text-hint: #aaaaaa;
+            --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text: #f8fafc; --hint: #94a3b8;
         }
-        body { font-family: -apple-system, sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 90px; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         
-        /* Навигация внизу */
-        .nav { position: fixed; bottom: 0; width: 100%; background: #222; border-top: 1px solid #333; display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
-        .nav-btn { background: none; border: none; color: var(--text-hint); font-size: 10px; display: flex; flex-direction: column; align-items: center; }
+        /* СТАРТОВЫЙ ЭКРАН */
+        #screen-welcome { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
+        .welcome-icon { font-size: 80px; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
+        /* НАВИГАЦИЯ */
+        .nav { position: fixed; bottom: 0; width: 100%; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #334155; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
+        .nav-btn { background: none; border: none; color: var(--hint); font-size: 10px; display: flex; flex-direction: column; align-items: center; }
         .nav-btn.active { color: var(--accent); }
-        .nav-icon { font-size: 24px; margin-bottom: 2px; }
+        .nav-icon { font-size: 24px; margin-bottom: 4px; }
 
-        /* Экраны */
+        /* ЭКРАНЫ */
         .screen { display: none; padding: 20px; animation: fadeIn 0.4s; }
         .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Карточки */
-        .card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        h2 { margin: 0 0 16px 0; font-size: 22px; font-weight: 700; }
+        /* ЭЛЕМЕНТЫ */
+        .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #334155; }
+        h1 { font-size: 28px; margin: 0 0 10px 0; background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 20px; margin: 0 0 15px 0; font-weight: 600; }
+        label { display: block; color: var(--hint); font-size: 13px; margin-bottom: 6px; font-weight: 500; }
         
-        /* Поля ввода */
-        label { display: block; color: var(--text-hint); font-size: 13px; margin-bottom: 6px; }
-        select, input { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 14px; border-radius: 12px; font-size: 16px; margin-bottom: 16px; box-sizing: border-box; }
-        .main-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        select, input { width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 12px; font-size: 16px; margin-bottom: 16px; box-sizing: border-box; outline: none; }
+        select:focus, input:focus { border-color: var(--accent); }
         
-        /* Карта */
-        #map { height: 250px; width: 100%; border-radius: 12px; margin-top: 10px; }
+        .main-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: transform 0.1s; }
+        .main-btn:active { transform: scale(0.98); }
+
+        /* ФОТО ЗАГРУЗКА */
+        .file-upload { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border: 2px dashed #334155; border-radius: 12px; background: rgba(15, 23, 42, 0.5); margin-bottom: 16px; }
+        .file-upload input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         
-        /* Профиль */
-        .avatar-circle { width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; }
-        .stat-row { display: flex; gap: 10px; margin-top: 15px; }
-        .stat-item { flex: 1; background: #333; padding: 10px; border-radius: 10px; text-align: center; }
-        .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-        .badge { background: #333; padding: 10px; border-radius: 10px; text-align: center; opacity: 0.4; filter: grayscale(1); }
-        .badge.active { opacity: 1; filter: none; border: 1px solid var(--accent); background: rgba(51, 144, 236, 0.1); }
+        /* КАРТА И БЕЙДЖИ */
+        #map { height: 220px; width: 100%; border-radius: 12px; margin-top: 10px; z-index: 1; }
+        .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .badge { background: #0f172a; padding: 10px; border-radius: 12px; text-align: center; opacity: 0.3; filter: grayscale(1); border: 1px solid #334155; }
+        .badge.active { opacity: 1; filter: none; border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
     </style>
 </head>
 <body>
 
-    <div id="screen-input" class="screen active">
+    <div id="screen-welcome">
+        <div class="welcome-icon">🇺🇿</div>
+        <h1>PULSE Monitor</h1>
+        <p style="color: #94a3b8; margin-bottom: 40px; font-size: 16px;">
+            Еженедельный мониторинг<br>экономики Узбекистана
+        </p>
+        <button class="main-btn" onclick="startApp()">Начать работу 🚀</button>
+    </div>
+
+    <div id="screen-input" class="screen">
         <h2>📝 Новый отчет</h2>
         <div class="card">
-            <label>Товар / Услуга</label>
+            <label>Товар</label>
             <select id="product">
                 <option value="strawberry_egg">🍓 Клубника / Яйцо</option>
                 <option value="plov_laziness">🍛 Плов (Доставка)</option>
@@ -67,229 +78,208 @@
                 <option value="tutor">🎓 Репетитор</option>
             </select>
             
-            <label>Место покупки</label>
+            <label>Место</label>
             <select id="location">
                 <option value="korzinka">🛒 Корзинка</option>
                 <option value="bazaar">🎪 Базар</option>
                 <option value="delivery">🚚 Доставка</option>
-                <option value="center">🏫 Учебный центр</option>
             </select>
 
-            <label>Цена (в сумах)</label>
-            <input type="number" id="price" placeholder="Например: 15000">
+            <label>Цена (сум)</label>
+            <input type="number" id="price" placeholder="15000">
             
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                <span style="font-size: 20px;">📍</span>
-                <span id="geo-status" style="font-size: 13px; color: #888;">Геолокация определяется...</span>
+            <label>Фото ценника (Опционально)</label>
+            <div class="file-upload" id="drop-zone">
+                <span style="font-size: 24px">📷</span>
+                <span id="file-label" style="font-size: 12px; margin-top: 5px">Нажми, чтобы добавить фото</span>
+                <input type="file" id="photo-input" accept="image/*">
             </div>
 
-            <button class="main-btn" onclick="submitData()" id="btn-submit">Отправить</button>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                <span id="geo-status" style="font-size: 12px; color: #4cd137;">📍 GPS найден</span>
+            </div>
+
+            <button class="main-btn" onclick="submitData()" id="btn-submit">Отправить отчет</button>
         </div>
     </div>
 
     <div id="screen-stats" class="screen">
-        <h2>📊 Карта цен</h2>
+        <h2>📊 Карта и Тренды</h2>
         <div class="card">
-            <div id="map"></div> <p style="font-size: 12px; color: #888; text-align: center; margin-top: 5px;">Показывает последние 50 точек</p>
+            <div id="map"></div>
         </div>
-
         <div class="card">
-            <h3>Средние цены</h3>
             <canvas id="priceChart"></canvas>
+        </div>
+        <div class="card">
+            <h3 style="margin-top:0">О Проекте</h3>
+            <p style="font-size: 13px; color: #aaa; line-height: 1.4;">
+                Проект <b>«ПУЛЬС»</b> исследует реальную стоимость жизни. Мы проверяем теории "Болезни цен" и "Эффекта Веблена" на рынках Узбекистана.
+            </p>
         </div>
     </div>
 
     <div id="screen-profile" class="screen">
-        <div class="card" style="text-align: center;">
-            <div class="avatar-circle" id="avatar">?</div>
-            <h2 id="username">Загрузка...</h2>
-            <p style="color: #888; font-size: 12px;" id="userid">ID: ...</p>
+        <div class="card" style="text-align: center; padding-top: 30px;">
+            <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white;" id="avatar">?</div>
+            <h2 id="username">Волонтер</h2>
             
-            <div class="stat-row">
-                <div class="stat-item">
-                    <div style="font-size: 20px; font-weight: bold; color: var(--accent);" id="count">0</div>
-                    <div style="font-size: 10px;">Отчетов</div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <div style="flex: 1; background: #0f172a; padding: 10px; border-radius: 10px;">
+                    <div style="font-size: 24px; font-weight: bold; color: var(--accent);" id="count">0</div>
+                    <div style="font-size: 10px; color: #64748b;">ОТЧЕТОВ</div>
                 </div>
-                <div class="stat-item">
-                    <div style="font-size: 20px; font-weight: bold; color: #f1c40f;" id="xp">0</div>
-                    <div style="font-size: 10px;">XP Опыт</div>
+                <div style="flex: 1; background: #0f172a; padding: 10px; border-radius: 10px;">
+                    <div style="font-size: 24px; font-weight: bold; color: #facc15;" id="xp">0</div>
+                    <div style="font-size: 10px; color: #64748b;">XP ОПЫТ</div>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h3>🏅 Достижения</h3>
+            <label>Достижения</label>
             <div class="badge-grid">
-                <div class="badge" id="b1">🐣<br><span style="font-size:10px">Старт</span></div>
-                <div class="badge" id="b5">🖐️<br><span style="font-size:10px">Актив</span></div>
-                <div class="badge" id="b10">🚀<br><span style="font-size:10px">Профи</span></div>
+                <div class="badge" id="b1">🏁<br><span style="font-size:9px">Старт</span></div>
+                <div class="badge" id="b5">🔥<br><span style="font-size:9px">Актив</span></div>
+                <div class="badge" id="b10">💎<br><span style="font-size:9px">Элита</span></div>
             </div>
         </div>
     </div>
 
     <div class="nav">
-        <button class="nav-btn active" onclick="go('input')" id="nav-input">
-            <span class="nav-icon">✏️</span>Ввод
-        </button>
-        <button class="nav-btn" onclick="go('stats')" id="nav-stats">
-            <span class="nav-icon">🌍</span>Инфо
-        </button>
-        <button class="nav-btn" onclick="go('profile')" id="nav-profile">
-            <span class="nav-icon">👤</span>Профиль
-        </button>
+        <button class="nav-btn active" onclick="go('input')" id="nav-input"><span class="nav-icon">✏️</span>Ввод</button>
+        <button class="nav-btn" onclick="go('stats')" id="nav-stats"><span class="nav-icon">🌍</span>Инфо</button>
+        <button class="nav-btn" onclick="go('profile')" id="nav-profile"><span class="nav-icon">👤</span>Профиль</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- ⚠️ ВСТАВЬ КЛЮЧИ СЮДА ⚠️ ---
-        const SB_URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
+        // ⚠️ ВСТАВЬ КЛЮЧИ НИЖЕ ⚠️
+        const URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
+        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
         
-        const db = window.supabase.createClient(SB_URL, SB_KEY);
+        const db = window.supabase.createClient(URL, KEY);
         
-        // Переменные
-        let currentUser = tg.initDataUnsafe?.user || { id: 11111, first_name: 'TestUser' };
-        let myLat = null;
-        let myLng = null;
-        let map = null;
+        let user = tg.initDataUnsafe?.user || { id: 11111, first_name: 'Test' };
+        let myLat = null, myLng = null, map = null, uploadedPhotoUrl = null;
 
-        // ЗАПУСК
-        init();
+        // Обработка ФОТО (При выборе файла)
+        document.getElementById('photo-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            document.getElementById('file-label').innerText = "Загрузка... ⏳";
+            
+            // Генерируем имя файла: user_id + время.jpg
+            const fileName = `${user.id}/${Date.now()}.jpg`;
+            
+            const { data, error } = await db.storage.from('photos').upload(fileName, file);
+            
+            if (error) {
+                alert("Ошибка фото: " + error.message);
+                document.getElementById('file-label').innerText = "Ошибка ❌";
+            } else {
+                // Получаем публичную ссылку
+                const { data: { publicUrl } } = db.storage.from('photos').getPublicUrl(fileName);
+                uploadedPhotoUrl = publicUrl;
+                document.getElementById('file-label').innerText = "Фото готово ✅";
+                document.getElementById('drop-zone').style.borderColor = "#4cd137";
+            }
+        });
 
-        async function init() {
-            // 1. Показываем юзера
-            document.getElementById('username').innerText = currentUser.first_name;
-            document.getElementById('avatar').innerText = currentUser.first_name[0];
-            document.getElementById('userid').innerText = 'ID: ' + currentUser.id;
+        function startApp() {
+            document.getElementById('screen-welcome').style.display = 'none';
+            document.getElementById('screen-input').classList.add('active');
+            initLogic();
+        }
 
-            // 2. Регистрируем в базе (тихая регистрация)
-            await db.from('users').upsert({ 
-                telegram_id: currentUser.id, 
-                full_name: currentUser.first_name, 
-                role: 'agent' 
-            }, { onConflict: 'telegram_id' });
-
-            // 3. Запрашиваем GPS
+        async function initLogic() {
+            document.getElementById('username').innerText = user.first_name;
+            document.getElementById('avatar').innerText = user.first_name[0];
+            
+            // Тихая регистрация
+            await db.from('users').upsert({ telegram_id: user.id, full_name: user.first_name }, { onConflict: 'telegram_id' });
+            
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        myLat = pos.coords.latitude;
-                        myLng = pos.coords.longitude;
-                        document.getElementById('geo-status').innerText = "Геолокация найдена ✅";
-                        document.getElementById('geo-status').style.color = "#4cd137";
-                    },
-                    (err) => {
-                        document.getElementById('geo-status').innerText = "Геолокация недоступна ❌";
-                    }
-                );
+                navigator.geolocation.getCurrentPosition(pos => { myLat = pos.coords.latitude; myLng = pos.coords.longitude; });
             }
         }
 
-        // НАВИГАЦИЯ
-        function go(screenName) {
+        function go(screen) {
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById('screen-' + screenName).classList.add('active');
-            document.getElementById('nav-' + screenName).classList.add('active');
-
-            if (screenName === 'stats') loadAnalytics();
-            if (screenName === 'profile') loadProfile();
+            document.getElementById('screen-' + screen).classList.add('active');
+            document.getElementById('nav-' + screen).classList.add('active');
+            if (screen === 'stats') loadStats();
+            if (screen === 'profile') loadProfile();
         }
 
-        // ОТПРАВКА ОТЧЕТА
         async function submitData() {
             const btn = document.getElementById('btn-submit');
             const price = document.getElementById('price').value;
-            
-            if (!price) return tg.showAlert("Введите цену!");
+            if (!price) return tg.showAlert("Нужна цена!");
 
-            btn.innerText = "Отправка...";
-            btn.disabled = true;
+            btn.disabled = true; btn.innerText = "⏳";
 
             const { error } = await db.from('submissions').insert({
-                user_id: currentUser.id,
+                user_id: user.id,
                 index_slug: document.getElementById('product').value,
                 location_type: document.getElementById('location').value,
                 price: Number(price),
-                lat: myLat, // Отправляем координаты
-                lng: myLng
+                lat: myLat,
+                lng: myLng,
+                photo_url: uploadedPhotoUrl // Сохраняем ссылку на фото
             });
 
-            if (error) {
-                tg.showAlert("Ошибка: " + error.message);
-            } else {
+            btn.disabled = false; btn.innerText = "Отправить";
+
+            if (!error) {
                 tg.HapticFeedback.notificationOccurred('success');
-                tg.showPopup({ title: 'Принято!', message: 'Спасибо за данные.' });
+                tg.showPopup({ title: 'Принято!', message: 'Спасибо за вклад!' });
                 document.getElementById('price').value = '';
+                document.getElementById('file-label').innerText = "Нажми, чтобы добавить фото";
+                uploadedPhotoUrl = null;
                 go('profile');
             }
-            btn.innerText = "Отправить";
-            btn.disabled = false;
         }
 
-        // ЗАГРУЗКА КАРТЫ И ГРАФИКОВ
-        async function loadAnalytics() {
-            // Скачиваем последние 50 записей
-            const { data } = await db.from('submissions').select('*').order('created_at', { ascending: false }).limit(50);
-            
+        async function loadStats() {
+            const { data } = await db.from('submissions').select('*').order('created_at', {ascending:false}).limit(50);
             if (!data) return;
 
-            // 1. РИСУЕМ КАРТУ
-            // Если карта еще не создана - создаем
+            // Карта
             if (!map) {
-                map = L.map('map').setView([41.31, 69.24], 11); // Центр Ташкента
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '©OSM'
-                }).addTo(map);
+                map = L.map('map').setView([41.31, 69.24], 10);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {attribution: '©OSM'}).addTo(map);
             }
-            
-            // Добавляем точки на карту
             data.forEach(row => {
-                if (row.lat && row.lng) {
-                    L.marker([row.lat, row.lng])
-                        .addTo(map)
-                        .bindPopup(`<b>${row.index_slug}</b><br>${row.price} сум`);
-                }
+                if (row.lat) L.marker([row.lat, row.lng]).addTo(map).bindPopup(`${row.price} сум`);
             });
 
-            // 2. РИСУЕМ ГРАФИК
+            // График
             const products = {};
-            data.forEach(row => {
-                if (!products[row.index_slug]) products[row.index_slug] = [];
-                products[row.index_slug].push(row.price);
-            });
-            const labels = Object.keys(products);
-            const averages = labels.map(s => products[s].reduce((a,b)=>a+b,0) / products[s].length);
-
+            data.forEach(row => { if(!products[row.index_slug]) products[row.index_slug]=[]; products[row.index_slug].push(row.price); });
+            const avg = Object.keys(products).map(k => products[k].reduce((a,b)=>a+b,0)/products[k].length);
+            
             const ctx = document.getElementById('priceChart');
             if (window.myChart) window.myChart.destroy();
             window.myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{ label: 'Ср. цена', data: averages, backgroundColor: '#3390ec', borderRadius: 8 }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { x: { display: false }, y: { grid: { color: '#333' } } }
-                }
+                type: 'doughnut', // Красивый круглый график
+                data: { labels: Object.keys(products), datasets: [{ data: avg, backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'], borderWidth: 0 }] },
+                options: { plugins: { legend: { position: 'right', labels: { color: 'white', font: {size: 10} } } } }
             });
         }
 
-        // ПРОФИЛЬ
         async function loadProfile() {
-            const { count } = await db.from('submissions').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
-            const total = count || 0;
-            
-            document.getElementById('count').innerText = total;
-            document.getElementById('xp').innerText = total * 10;
-
-            if (total >= 1) document.getElementById('b1').classList.add('active');
-            if (total >= 5) document.getElementById('b5').classList.add('active');
-            if (total >= 10) document.getElementById('b10').classList.add('active');
+            const { count } = await db.from('submissions').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+            const n = count || 0;
+            document.getElementById('count').innerText = n;
+            document.getElementById('xp').innerText = n * 10;
+            if (n >= 1) document.getElementById('b1').classList.add('active');
+            if (n >= 5) document.getElementById('b5').classList.add('active');
+            if (n >= 10) document.getElementById('b10').classList.add('active');
         }
     </script>
 </body>
