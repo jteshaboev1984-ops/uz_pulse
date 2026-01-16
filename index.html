@@ -45,10 +45,6 @@
         .main-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: transform 0.1s; }
         .main-btn:active { transform: scale(0.98); }
 
-        /* ФОТО ЗАГРУЗКА */
-        .file-upload { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; border: 2px dashed #334155; border-radius: 12px; background: rgba(15, 23, 42, 0.5); margin-bottom: 16px; }
-        .file-upload input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        
         /* КАРТА И БЕЙДЖИ */
         #map { height: 220px; width: 100%; border-radius: 12px; margin-top: 10px; z-index: 1; }
         .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -88,13 +84,6 @@
             <label>Цена (сум)</label>
             <input type="number" id="price" placeholder="15000">
             
-            <label>Фото ценника (Опционально)</label>
-            <div class="file-upload" id="drop-zone">
-                <span style="font-size: 24px">📷</span>
-                <span id="file-label" style="font-size: 12px; margin-top: 5px">Нажми, чтобы добавить фото</span>
-                <input type="file" id="photo-input" accept="image/*">
-            </div>
-
             <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                 <span id="geo-status" style="font-size: 12px; color: #4cd137;">📍 GPS найден</span>
             </div>
@@ -163,31 +152,7 @@
         const db = window.supabase.createClient(URL, KEY);
         
         let user = tg.initDataUnsafe?.user || { id: 11111, first_name: 'Test' };
-        let myLat = null, myLng = null, map = null, uploadedPhotoUrl = null;
-
-        // Обработка ФОТО (При выборе файла)
-        document.getElementById('photo-input').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            document.getElementById('file-label').innerText = "Загрузка... ⏳";
-            
-            // Генерируем имя файла: user_id + время.jpg
-            const fileName = `${user.id}/${Date.now()}.jpg`;
-            
-            const { data, error } = await db.storage.from('photos').upload(fileName, file);
-            
-            if (error) {
-                alert("Ошибка фото: " + error.message);
-                document.getElementById('file-label').innerText = "Ошибка ❌";
-            } else {
-                // Получаем публичную ссылку
-                const { data: { publicUrl } } = db.storage.from('photos').getPublicUrl(fileName);
-                uploadedPhotoUrl = publicUrl;
-                document.getElementById('file-label').innerText = "Фото готово ✅";
-                document.getElementById('drop-zone').style.borderColor = "#4cd137";
-            }
-        });
+        let myLat = null, myLng = null, map = null;
 
         function startApp() {
             document.getElementById('screen-welcome').style.display = 'none';
@@ -229,8 +194,7 @@
                 location_type: document.getElementById('location').value,
                 price: Number(price),
                 lat: myLat,
-                lng: myLng,
-                photo_url: uploadedPhotoUrl // Сохраняем ссылку на фото
+                lng: myLng
             });
 
             btn.disabled = false; btn.innerText = "Отправить";
@@ -239,9 +203,9 @@
                 tg.HapticFeedback.notificationOccurred('success');
                 tg.showPopup({ title: 'Принято!', message: 'Спасибо за вклад!' });
                 document.getElementById('price').value = '';
-                document.getElementById('file-label').innerText = "Нажми, чтобы добавить фото";
-                uploadedPhotoUrl = null;
                 go('profile');
+            } else {
+                tg.showAlert("Ошибка: " + error.message);
             }
         }
 
