@@ -124,10 +124,11 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- КЛЮЧИ (Я ВСТАВИЛ ИХ ЗА ТЕБЯ) ---
-        const URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
-        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
+        // ⚠️ ИСПРАВЛЕНИЕ: Добавлен .trim(), чтобы убрать невидимые пробелы
+        const URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co'.trim();
+        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI'.trim();
         
+        // Создаем клиент БД. Если URL был плохой, теперь он почищен.
         const db = window.supabase.createClient(URL, KEY);
         
         let user = tg.initDataUnsafe?.user || { id: 11111, first_name: 'TestUser' };
@@ -143,7 +144,6 @@
             document.getElementById('username').innerText = user.first_name;
             document.getElementById('avatar').innerText = user.first_name[0];
             
-            // Пробуем зарегистрировать, если ошибка - выводим в консоль, но не стопорим
             try {
                 await db.from('users').upsert({ telegram_id: user.id, full_name: user.first_name }, { onConflict: 'telegram_id' });
             } catch (e) { console.error("Ошибка входа:", e); }
@@ -172,7 +172,6 @@
 
             btn.disabled = true; btn.innerText = "⏳";
 
-            // ГЛАВНЫЙ МОМЕНТ: ОТПРАВКА
             try {
                 const { error } = await db.from('submissions').insert({
                     user_id: user.id,
@@ -183,17 +182,15 @@
                     lng: myLng
                 });
 
-                if (error) throw error; // Если ошибка базы - кидаем её в catch
+                if (error) throw error;
 
-                // Если всё ок
                 tg.HapticFeedback.notificationOccurred('success');
                 tg.showPopup({ title: 'Готово!', message: 'Данные улетели в базу 🚀' });
                 document.getElementById('price').value = '';
                 go('profile');
 
             } catch (err) {
-                // ЕСЛИ ОШИБКА - ПОКАЖЕМ ЕЁ НА ЭКРАНЕ
-                alert("ОШИБКА ОТПРАВКИ:\n" + err.message + "\n\nПокажи этот текст программисту.");
+                alert("ОШИБКА: " + err.message);
             } finally {
                 btn.disabled = false; btn.innerText = "Отправить отчет";
             }
