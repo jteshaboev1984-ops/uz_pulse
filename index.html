@@ -182,7 +182,7 @@
             btn.innerText = "⏳";
 
             const { error } = await db.from('submissions').insert({
-                user_id: 12345, // Для теста используем 12345
+                user_id: user.id
                 index_slug: document.getElementById('product').value,
                 location_type: document.getElementById('location').value,
                 price: Number(price)
@@ -252,7 +252,7 @@
             const { count } = await db
                 .from('submissions')
                 .select('*', { count: 'exact', head: true })
-                .eq('user_id', 12345);
+                .eq('user_id', user.id);
             
             const reports = count || 0;
             const xp = reports * 10; // 1 отчет = 10 XP
