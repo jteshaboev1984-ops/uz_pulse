@@ -17,30 +17,25 @@
         }
         body { font-family: -apple-system, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; padding-bottom: 90px; }
         
-        /* Навигация */
         .nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); display: flex; padding: 10px; border-top: 1px solid #333; z-index: 100; }
         .nav-btn { flex: 1; background: none; border: none; color: var(--hint); font-size: 11px; font-weight: 500; padding: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
         .nav-btn.active { color: var(--accent); }
         .nav-icon { font-size: 22px; margin-bottom: 4px; }
 
-        /* Экраны */
         .screen { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .screen.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Карточки */
         .card { background: var(--card-bg); padding: 15px; border-radius: 14px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         h2 { margin-top: 5px; margin-bottom: 15px; font-size: 24px; font-weight: 700; }
         h3 { margin: 0 0 10px 0; font-size: 16px; opacity: 0.9; }
         
-        /* Форма */
         label { display: block; margin-bottom: 6px; color: var(--hint); font-size: 14px; }
         select, input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #3a3a3a; background: var(--bg-color); color: var(--text-color); box-sizing: border-box; margin-bottom: 15px; font-size: 16px; outline: none; transition: border 0.2s; }
         select:focus, input:focus { border-color: var(--accent); }
         .main-btn { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
         .main-btn:active { opacity: 0.8; }
 
-        /* Профиль */
         .profile-header { text-align: center; padding: 20px 0; }
         .avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--accent); margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; border: 3px solid var(--card-bg); }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
@@ -48,13 +43,11 @@
         .stat-val { font-size: 24px; font-weight: bold; color: var(--accent); }
         .stat-label { font-size: 12px; color: var(--hint); margin-top: 4px; }
         
-        /* Бейджи */
         .badges-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .badge { background: var(--bg-color); border-radius: 10px; padding: 10px; text-align: center; opacity: 0.3; filter: grayscale(1); transition: all 0.3s; }
         .badge.unlocked { opacity: 1; filter: grayscale(0); border: 1px solid var(--accent); background: rgba(51, 144, 236, 0.1); }
         .badge-icon { font-size: 28px; display: block; margin-bottom: 5px; }
         .badge-name { font-size: 10px; display: block; line-height: 1.2; }
-
     </style>
 </head>
 <body>
@@ -69,7 +62,6 @@
                 <option value="milk_eco">🥛 Молоко (Эко)</option>
                 <option value="tutor">🎓 Репетитор</option>
             </select>
-            
             <label>Место сбора</label>
             <select id="location">
                 <option value="korzinka">🛒 Корзинка</option>
@@ -77,12 +69,9 @@
                 <option value="delivery">🚚 Доставка</option>
                 <option value="center">🏫 Учебный центр</option>
             </select>
-
             <label>Цена (сум)</label>
             <input type="number" id="price" placeholder="Например: 15000">
-            
             <button class="main-btn" onclick="submitData()" id="sendBtn">Отправить отчет</button>
-            <p id="status" style="text-align: center; margin-top: 10px; font-size: 14px; color: var(--hint);"></p>
         </div>
     </div>
 
@@ -97,11 +86,10 @@
 
     <div id="screen-profile" class="screen">
         <div class="card profile-header">
-            <div class="avatar" id="avatar">U</div>
-            <h2 id="username" style="margin-bottom: 5px;">User</h2>
-            <div style="color: var(--hint); font-size: 14px;" id="school">Школа №1, Нурафшон</div>
+            <div class="avatar" id="avatar">?</div>
+            <h2 id="username" style="margin-bottom: 5px;">Загрузка...</h2>
+            <div style="color: var(--hint); font-size: 14px;" id="user-id-display">ID: ...</div>
         </div>
-
         <div class="stats-grid">
             <div class="stat-box">
                 <div class="stat-val" id="total-reports">0</div>
@@ -112,77 +100,81 @@
                 <div class="stat-label">XP (Опыт)</div>
             </div>
         </div>
-
         <h3>🏆 Мои достижения</h3>
         <div class="card">
             <div class="badges-grid">
-                <div class="badge" id="badge-1">
-                    <span class="badge-icon">🐣</span>
-                    <span class="badge-name">Первый шаг</span>
-                </div>
-                <div class="badge" id="badge-5">
-                    <span class="badge-icon">🖐️</span>
-                    <span class="badge-name">Активный</span>
-                </div>
-                <div class="badge" id="badge-10">
-                    <span class="badge-icon">⭐</span>
-                    <span class="badge-name">Эксперт</span>
-                </div>
+                <div class="badge" id="badge-1"><span class="badge-icon">🐣</span><span class="badge-name">Первый шаг</span></div>
+                <div class="badge" id="badge-5"><span class="badge-icon">🖐️</span><span class="badge-name">Активный</span></div>
+                <div class="badge" id="badge-10"><span class="badge-icon">⭐</span><span class="badge-name">Эксперт</span></div>
             </div>
         </div>
     </div>
 
     <div class="nav">
-        <button class="nav-btn active" onclick="switchTab('form')" id="btn-form">
-            <span class="nav-icon">📝</span> Ввод
-        </button>
-        <button class="nav-btn" onclick="switchTab('stats')" id="btn-stats">
-            <span class="nav-icon">📊</span> Инфо
-        </button>
-        <button class="nav-btn" onclick="switchTab('profile')" id="btn-profile">
-            <span class="nav-icon">👤</span> Профиль
-        </button>
+        <button class="nav-btn active" onclick="switchTab('form')" id="btn-form"><span class="nav-icon">📝</span> Ввод</button>
+        <button class="nav-btn" onclick="switchTab('stats')" id="btn-stats"><span class="nav-icon">📊</span> Инфо</button>
+        <button class="nav-btn" onclick="switchTab('profile')" id="btn-profile"><span class="nav-icon">👤</span> Профиль</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ⚠️ ВСТАВЬ СЮДА СВОИ КЛЮЧИ!
+        // ⚠️ ВСТАВЬ СЮДА СВОИ КЛЮЧИ! ⚠️
         const MY_URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
         const MY_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
         
         const db = window.supabase.createClient(MY_URL, MY_KEY);
 
-        // Инициализация при старте
-        const user = tg.initDataUnsafe?.user || { first_name: 'Волонтер', id: 12345 };
-        document.getElementById('username').innerText = user.first_name;
-        document.getElementById('avatar').innerText = user.first_name[0];
+        // Получаем РЕАЛЬНОГО пользователя или создаем временного для ПК
+        const user = tg.initDataUnsafe?.user || { id: 11111, first_name: 'PC User', username: 'test_pc' };
 
-        // Переключение вкладок
+        // Запуск
+        initApp();
+
+        async function initApp() {
+            document.getElementById('username').innerText = user.first_name;
+            document.getElementById('avatar').innerText = user.first_name[0];
+            document.getElementById('user-id-display').innerText = `ID: ${user.id}`;
+            
+            // 🔥 МАГИЯ: Проверяем, есть ли юзер в базе. Если нет - создаем!
+            // Это решает проблему друга и выключенного бота
+            await ensureUserExists();
+        }
+
+        async function ensureUserExists() {
+            // Пробуем добавить юзера. Если он есть - ничего страшного (ignore).
+            const { error } = await db.from('users').upsert({
+                telegram_id: user.id,
+                full_name: user.first_name,
+                role: 'agent'
+            }, { onConflict: 'telegram_id' });
+            
+            if (error) console.error("Ошибка регистрации:", error);
+        }
+
         function switchTab(tab) {
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            
             document.getElementById('screen-' + tab).classList.add('active');
             document.getElementById('btn-' + tab).classList.add('active');
-
             if (tab === 'stats') loadStats();
             if (tab === 'profile') loadProfile();
         }
 
-        // 1. ОТПРАВКА
         async function submitData() {
             const btn = document.getElementById('sendBtn');
             const price = document.getElementById('price').value;
-            
             if (!price) return tg.showAlert("Введите цену!");
 
             btn.disabled = true;
             btn.innerText = "⏳";
 
+            // Сначала убедимся, что юзер точно есть в базе
+            await ensureUserExists();
+
             const { error } = await db.from('submissions').insert({
-                user_id: user.id
+                user_id: user.id, // ИСПОЛЬЗУЕМ РЕАЛЬНЫЙ ID
                 index_slug: document.getElementById('product').value,
                 location_type: document.getElementById('location').value,
                 price: Number(price)
@@ -195,19 +187,15 @@
                 tg.showAlert("Ошибка: " + error.message);
             } else {
                 tg.HapticFeedback.notificationOccurred('success');
-                tg.showPopup({ title: 'Супер!', message: 'Отчет принят. +10 XP начислено!' });
+                tg.showPopup({ title: 'Супер!', message: '+10 XP начислено!' });
                 document.getElementById('price').value = '';
-                // Сразу перекинем в профиль, чтобы показать прогресс
-                switchTab('profile');
+                switchTab('profile'); // Перекидываем в профиль
             }
         }
 
-        // 2. СТАТИСТИКА
         async function loadStats() {
             const { data } = await db.from('submissions').select('*');
             if (!data) return;
-
-            // Расчет среднего
             const products = {};
             data.forEach(row => {
                 if (!products[row.index_slug]) products[row.index_slug] = [];
@@ -215,63 +203,27 @@
             });
             const labels = Object.keys(products);
             const averages = labels.map(s => products[s].reduce((a,b)=>a+b,0) / products[s].length);
-
-            // График
+            
             const ctx = document.getElementById('myChart');
             if (window.myChartInstance) window.myChartInstance.destroy();
             window.myChartInstance = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Средняя цена',
-                        data: averages,
-                        backgroundColor: ['#3390ec', '#e05d44', '#f1c40f', '#2ecc71'],
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
-                }
+                data: { labels: labels, datasets: [{ label: 'Цена', data: averages, backgroundColor: '#3390ec', borderRadius: 6 }] },
+                options: { plugins: { legend: { display: false } }, scales: { x: { display: false } } }
             });
 
-            // История
             const list = document.getElementById('history-list');
             list.innerHTML = data.slice(-5).reverse().map(row => 
-                `<div class="card" style="padding:10px; margin-bottom:8px; display:flex; justify-content:space-between;">
-                    <span>${row.index_slug}</span>
-                    <b>${row.price} сум</b>
-                </div>`
+                `<div class="card" style="padding:10px; margin-bottom:8px; display:flex; justify-content:space-between;"><span>${row.index_slug}</span><b>${row.price}</b></div>`
             ).join('');
         }
 
-        // 3. ПРОФИЛЬ (Геймификация)
         async function loadProfile() {
-            // Считаем сколько отчетов сдал ЭТОТ юзер (id=12345)
-            const { count } = await db
-                .from('submissions')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user.id);
-            
+            const { count } = await db.from('submissions').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
             const reports = count || 0;
-            const xp = reports * 10; // 1 отчет = 10 XP
-
-            // Обновляем цифры
             document.getElementById('total-reports').innerText = reports;
+            document.getElementById('xp-points').innerText = reports * 10;
             
-            // Анимация накрутки XP
-            let currentXp = 0;
-            const xpInterval = setInterval(() => {
-                currentXp += 1;
-                document.getElementById('xp-points').innerText = currentXp;
-                if (currentXp >= xp) {
-                    clearInterval(xpInterval);
-                    document.getElementById('xp-points').innerText = xp;
-                }
-            }, 20);
-
-            // Логика бейджей (открываем если достигнута цель)
             if (reports >= 1) document.getElementById('badge-1').classList.add('unlocked');
             if (reports >= 5) document.getElementById('badge-5').classList.add('unlocked');
             if (reports >= 10) document.getElementById('badge-10').classList.add('unlocked');
