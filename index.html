@@ -12,28 +12,22 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        :root {
-            --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text: #f8fafc; --hint: #94a3b8;
-        }
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text: #f8fafc; --hint: #94a3b8; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         
-        /* СТАРТОВЫЙ ЭКРАН */
         #screen-welcome { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
         .welcome-icon { font-size: 80px; margin-bottom: 20px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         
-        /* НАВИГАЦИЯ */
         .nav { position: fixed; bottom: 0; width: 100%; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #334155; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
         .nav-btn { background: none; border: none; color: var(--hint); font-size: 10px; display: flex; flex-direction: column; align-items: center; }
         .nav-btn.active { color: var(--accent); }
         .nav-icon { font-size: 24px; margin-bottom: 4px; }
 
-        /* ЭКРАНЫ */
         .screen { display: none; padding: 20px; animation: fadeIn 0.4s; }
         .screen.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ЭЛЕМЕНТЫ */
         .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #334155; }
         h1 { font-size: 28px; margin: 0 0 10px 0; background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         h2 { font-size: 20px; margin: 0 0 15px 0; font-weight: 600; }
@@ -42,10 +36,9 @@
         select, input { width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 14px; border-radius: 12px; font-size: 16px; margin-bottom: 16px; box-sizing: border-box; outline: none; }
         select:focus, input:focus { border-color: var(--accent); }
         
-        .main-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: transform 0.1s; }
+        .main-btn { width: 100%; background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
         .main-btn:active { transform: scale(0.98); }
 
-        /* КАРТА И БЕЙДЖИ */
         #map { height: 220px; width: 100%; border-radius: 12px; margin-top: 10px; z-index: 1; }
         .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .badge { background: #0f172a; padding: 10px; border-radius: 12px; text-align: center; opacity: 0.3; filter: grayscale(1); border: 1px solid #334155; }
@@ -57,9 +50,7 @@
     <div id="screen-welcome">
         <div class="welcome-icon">🇺🇿</div>
         <h1>PULSE Monitor</h1>
-        <p style="color: #94a3b8; margin-bottom: 40px; font-size: 16px;">
-            Еженедельный мониторинг<br>экономики Узбекистана
-        </p>
+        <p style="color: #94a3b8; margin-bottom: 40px; font-size: 16px;">Система мониторинга<br>Школа №1</p>
         <button class="main-btn" onclick="startApp()">Начать работу 🚀</button>
     </div>
 
@@ -94,25 +85,14 @@
 
     <div id="screen-stats" class="screen">
         <h2>📊 Карта и Тренды</h2>
-        <div class="card">
-            <div id="map"></div>
-        </div>
-        <div class="card">
-            <canvas id="priceChart"></canvas>
-        </div>
-        <div class="card">
-            <h3 style="margin-top:0">О Проекте</h3>
-            <p style="font-size: 13px; color: #aaa; line-height: 1.4;">
-                Проект <b>«ПУЛЬС»</b> исследует реальную стоимость жизни. Мы проверяем теории "Болезни цен" и "Эффекта Веблена" на рынках Узбекистана.
-            </p>
-        </div>
+        <div class="card"><div id="map"></div></div>
+        <div class="card"><canvas id="priceChart"></canvas></div>
     </div>
 
     <div id="screen-profile" class="screen">
         <div class="card" style="text-align: center; padding-top: 30px;">
             <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white;" id="avatar">?</div>
             <h2 id="username">Волонтер</h2>
-            
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <div style="flex: 1; background: #0f172a; padding: 10px; border-radius: 10px;">
                     <div style="font-size: 24px; font-weight: bold; color: var(--accent);" id="count">0</div>
@@ -124,7 +104,6 @@
                 </div>
             </div>
         </div>
-
         <div class="card">
             <label>Достижения</label>
             <div class="badge-grid">
@@ -145,13 +124,13 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ⚠️ ВСТАВЬ КЛЮЧИ НИЖЕ ⚠️
+        // --- КЛЮЧИ (Я ВСТАВИЛ ИХ ЗА ТЕБЯ) ---
         const URL = 'https://psmtnxrbjdvyapjdcfxb.supabase.co';
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzbXRueHJiamR2eWFwamRjZnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NjY1OTEsImV4cCI6MjA4NDA0MjU5MX0.eaTvnG9CX7K2TgaI0Qd0yz-fC-IpbxnGyLldDT2qdoI';
         
         const db = window.supabase.createClient(URL, KEY);
         
-        let user = tg.initDataUnsafe?.user || { id: 11111, first_name: 'Test' };
+        let user = tg.initDataUnsafe?.user || { id: 11111, first_name: 'TestUser' };
         let myLat = null, myLng = null, map = null;
 
         function startApp() {
@@ -164,11 +143,16 @@
             document.getElementById('username').innerText = user.first_name;
             document.getElementById('avatar').innerText = user.first_name[0];
             
-            // Тихая регистрация
-            await db.from('users').upsert({ telegram_id: user.id, full_name: user.first_name }, { onConflict: 'telegram_id' });
+            // Пробуем зарегистрировать, если ошибка - выводим в консоль, но не стопорим
+            try {
+                await db.from('users').upsert({ telegram_id: user.id, full_name: user.first_name }, { onConflict: 'telegram_id' });
+            } catch (e) { console.error("Ошибка входа:", e); }
             
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => { myLat = pos.coords.latitude; myLng = pos.coords.longitude; });
+                navigator.geolocation.getCurrentPosition(
+                    pos => { myLat = pos.coords.latitude; myLng = pos.coords.longitude; },
+                    err => { document.getElementById('geo-status').innerText = "GPS не работает"; }
+                );
             }
         }
 
@@ -184,28 +168,34 @@
         async function submitData() {
             const btn = document.getElementById('btn-submit');
             const price = document.getElementById('price').value;
-            if (!price) return tg.showAlert("Нужна цена!");
+            if (!price) return tg.showAlert("Введите цену!");
 
             btn.disabled = true; btn.innerText = "⏳";
 
-            const { error } = await db.from('submissions').insert({
-                user_id: user.id,
-                index_slug: document.getElementById('product').value,
-                location_type: document.getElementById('location').value,
-                price: Number(price),
-                lat: myLat,
-                lng: myLng
-            });
+            // ГЛАВНЫЙ МОМЕНТ: ОТПРАВКА
+            try {
+                const { error } = await db.from('submissions').insert({
+                    user_id: user.id,
+                    index_slug: document.getElementById('product').value,
+                    location_type: document.getElementById('location').value,
+                    price: Number(price),
+                    lat: myLat,
+                    lng: myLng
+                });
 
-            btn.disabled = false; btn.innerText = "Отправить";
+                if (error) throw error; // Если ошибка базы - кидаем её в catch
 
-            if (!error) {
+                // Если всё ок
                 tg.HapticFeedback.notificationOccurred('success');
-                tg.showPopup({ title: 'Принято!', message: 'Спасибо за вклад!' });
+                tg.showPopup({ title: 'Готово!', message: 'Данные улетели в базу 🚀' });
                 document.getElementById('price').value = '';
                 go('profile');
-            } else {
-                tg.showAlert("Ошибка: " + error.message);
+
+            } catch (err) {
+                // ЕСЛИ ОШИБКА - ПОКАЖЕМ ЕЁ НА ЭКРАНЕ
+                alert("ОШИБКА ОТПРАВКИ:\n" + err.message + "\n\nПокажи этот текст программисту.");
+            } finally {
+                btn.disabled = false; btn.innerText = "Отправить отчет";
             }
         }
 
@@ -213,16 +203,12 @@
             const { data } = await db.from('submissions').select('*').order('created_at', {ascending:false}).limit(50);
             if (!data) return;
 
-            // Карта
             if (!map) {
                 map = L.map('map').setView([41.31, 69.24], 10);
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {attribution: '©OSM'}).addTo(map);
             }
-            data.forEach(row => {
-                if (row.lat) L.marker([row.lat, row.lng]).addTo(map).bindPopup(`${row.price} сум`);
-            });
+            data.forEach(row => { if (row.lat) L.marker([row.lat, row.lng]).addTo(map).bindPopup(row.price + " сум"); });
 
-            // График
             const products = {};
             data.forEach(row => { if(!products[row.index_slug]) products[row.index_slug]=[]; products[row.index_slug].push(row.price); });
             const avg = Object.keys(products).map(k => products[k].reduce((a,b)=>a+b,0)/products[k].length);
@@ -230,7 +216,7 @@
             const ctx = document.getElementById('priceChart');
             if (window.myChart) window.myChart.destroy();
             window.myChart = new Chart(ctx, {
-                type: 'doughnut', // Красивый круглый график
+                type: 'doughnut',
                 data: { labels: Object.keys(products), datasets: [{ data: avg, backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'], borderWidth: 0 }] },
                 options: { plugins: { legend: { position: 'right', labels: { color: 'white', font: {size: 10} } } } }
             });
